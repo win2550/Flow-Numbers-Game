@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Flow-Numbers-Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <button id="theme-toggle" onclick="toggleTheme()">🌞</button>
+
+  <style>
+
+    * { box-sizing: border-box; }
+    body {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center;   จัดกลางแนวตั้ง */
+    align-items: center;       /* จัดกลางแนวนอน */
+    min-height: 100vh;         /* ให้สูงเท่าหน้าจอ */
+    margin: 0;
+    background-color: #f0f0f0;
+    font-family: sans-serif;
+    text-align: center;
+    padding: 20px;
+    }
+
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    .hidden { display: none; }
+
+    .floating-image {
+        position: fixed;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 250px;
+        height: auto;
+        opacity: 0.9;
+        pointer-events: none; /* ✅ ป้องกันการกดทับปุ่ม */
+        z-index: 1;
+    }
+
+    .floating-image1 {
+        position: fixed;
+        bottom: 190px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 230px;
+        height: auto;
+        opacity: 0.9;
+        pointer-events: none; /* ✅ ป้องกันการกดทับปุ่ม */
+        z-index: 1;
+    }
+
+    input[type="text"], input[type="password"], button {
+      text-align: center;
+      font-size: 1.2em;
+      padding: 10px;
+      margin: 10px 5px;
+      width: 80%;
+      max-width: 300px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #000000;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #000000;
+    }
+
+    .log-box {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 1em;
+      color: #555;
+      font-style: italic;
+    }
+
+    @media (min-width: 600px) {
+      input, button {
+        width: 200px;
+      }
+    }
+
+    .back-button {
+      background-color: #888;
+    }
+
+    .back-button:hover {
+      background-color: #666;
+    }
+
+    /* ปุ่มมุมขวาบน */
+        #theme-toggle {
+        /* position: fixed; */
+        top: 100px;
+        left: 50%;
+        background: none;
+        border: none;
+        font-size: 1.8em;
+        cursor: pointer;
+        z-index: 1000;
+    }
+
+    /* โหมดกลางคืน */
+    .dark-mode {
+        background-color: #111;
+        color: white;
+    }
+
+    .dark-mode input,
+    .dark-mode button {
+        background-color: #222;
+        color: white;
+        border-color: #555;
+    }
+
+    .dark-mode .back-button {
+        background-color: #555;
+    }
+
+    .dark-mode .back-button:hover {
+        background-color: #444;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- หน้าหลัก -->
+  <div id="start-screen">
+    <img src="1436028411-headline-o.jpg" alt="" class="floating-image1">
+    <h1>Four Numbers</h1>
+    <button onclick="showModeScreen()">Start</button>
+    <!-- <img src="3c51fb0232647b4e6ec5ebd243a8cafc.jpg" alt="" class="floating-image"> -->
+  </div>
+
+  <!-- เลือกโหมด -->
+  <div id="mode-screen" class="hidden">
+    <h2>Select mode</h2>
+    <button onclick="startSinglePlayer()">Solo</button>
+    <button onclick="showTwoPlayerSetup()">Solox2</button><br>
+    <button onclick="startBPMode()">BP Mode</button>
+    <button class="back-button" onclick="goBackToStart()">Back</button>
+  </div>
+
+  <!-- โหมดคนเดียว -->
+  <div id="single-player" class="hidden">
+    <h2>Single Mode</h2>
+    <input type="text" id="guess1" maxlength="4" placeholder="1234">
+    <div id="log1"></div>
+    <button id="restart-single-btn" class="hidden" onclick="startSinglePlayer()">Play Again</button><br>
+    <button class="back-button" onclick="goBackToMode()">Back</button>
+  </div>
+
+  <!-- โหมดสองคน - ใส่รหัส -->
+  <div id="two-player-setup" class="hidden">
+    <h2>Create Code</h2>
+    <input type="password" id="secret-number" maxlength="4" placeholder="ใส่เลข 4 หลัก">
+    <!-- <button onclick="startTwoPlayer()">เริ่มให้เพื่อนเล่น</button><br> -->
+    <button class="back-button" onclick="goBackToMode()">Back</button>
+  </div>
+
+  <!-- โหมดสองคน - ทาย -->
+  <div id="two-player" class="hidden">
+    <h2>Couple Mode</h2>
+    <input type="text" id="guess2" maxlength="4" placeholder="1234">
+    <div id="log2"></div>
+    <button id="restart-two-btn" class="hidden" onclick="restartTwoPlayer()">Play Again</button><br>
+    <button class="back-button" onclick="goBackToMode()">Back</button>
+  </div>
+
+  <!-- โหมด BP -->
+  <div id="bp-mode" class="hidden">
+    <h2>BP Mode</h2>
+    <input type="text" id="guess-bp" maxlength="10" placeholder="กรอกเลข 10 หลักไม่ซ้ำกัน">
+    <div id="log-bp"></div>
+    <button id="restart-bp-btn" class="hidden" onclick="startBPMode()">Play Again</button><br>
+    <button class="back-button" onclick="goBackToMode()">Back</button>
+  </div>
+
+
+  <!-- กล่องคำพูดสุ่ม -->
+  <div id="comment-box" class="log-box hidden"></div>
+  <img id="funny-image" class="hidden" src="seal.png" alt="รูปตลกตอนเดาผิด" style="width: 200px; margin-top: 10px;" />
+
+  <script>
+    let answer = [];
+    let playerSecret = [];
+
+    function showOnly(id) {
+      const all = ["start-screen", "mode-screen", "single-player", "two-player-setup", "two-player", "bp-mode"];
+      all.forEach(x => document.getElementById(x).classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+
+      const isGameScreen = ["single-player", "two-player", "bp-mode"].includes(id);
+      document.getElementById("comment-box").classList.toggle("hidden", !isGameScreen);
+      document.getElementById("funny-image").classList.add("hidden");
+
+      const img = document.getElementById("floating-title-img");
+      if (img) img.style.display = isGameScreen ? "block" : "none";
+    }
+
+    let bpAnswer = [];
+
+    function startBPMode() {
+      bpAnswer = generateNumber(10); // สุ่ม 10 ตัวไม่ซ้ำ
+      console.log("เฉลยโหมด BP:", bpAnswer.join(''));
+      document.getElementById("guess-bp").value = "";
+      document.getElementById("log-bp").innerHTML = "";
+      document.getElementById("restart-bp-btn").classList.add("hidden");
+      showOnly("bp-mode");
+    }
+
+    function showModeScreen() {
+      showOnly("mode-screen");
+    }
+
+    function goBackToStart() {
+      showOnly("start-screen");
+    }
+
+    function goBackToMode() {
+      showOnly("mode-screen");
+    }
+
+    function startSinglePlayer() {
+      answer = generateNumber();
+      console.log("เฉลยโหมดคนเดียว:", answer.join(''));
+      document.getElementById("guess1").value = "";
+      document.getElementById("log1").innerHTML = "";
+      document.getElementById("restart-single-btn").classList.add("hidden");
+      showOnly("single-player");
+    }
+
+    function showTwoPlayerSetup() {
+      document.getElementById("secret-number").value = "";
+      showOnly("two-player-setup");
+    }
+
+    function startTwoPlayer() {
+      const secret = document.getElementById("secret-number").value;
+      if (!validateInput(secret)) return;
+
+      playerSecret = secret.split('').map(Number);
+      document.getElementById("guess2").value = "";
+      document.getElementById("log2").innerHTML = "";
+      document.getElementById("restart-two-btn").classList.add("hidden");
+      showOnly("two-player");
+    }
+
+    function restartTwoPlayer() {
+      showTwoPlayerSetup();
+    }
+
+    function generateNumber(length = 4) {
+      let digits = [];
+      while (digits.length < length) {
+        let n = Math.floor(Math.random() * 10);
+        if (!digits.includes(n)) digits.push(n);
+      }
+      return digits;
+    }
+
+    function checkGuessBP() {
+      const input = document.getElementById("guess-bp").value;
+      if (!validateInput(input, 10)) return;
+
+      const guess = input.split('').map(Number);
+      const result = checkAB(guess, bpAnswer);
+      addLog("log-bp", input, result);
+
+      if (result.a === 10) {
+        alert("🎉 ยินดีด้วย! ทายถูกทั้ง 10 ตัว!");
+        document.getElementById("restart-bp-btn").classList.remove("hidden");
+      }
+
+      document.getElementById("guess-bp").value = "";
+    }
+
+    function checkGuessSingle() {
+      const input = document.getElementById("guess1").value;
+      if (!validateInput(input)) return;
+
+      const guess = input.split('').map(Number);
+      const result = checkAB(guess, answer);
+      addLog("log1", input, result);
+
+      if (result.a === 4) {
+        alert("🎉 ยินดีด้วย! คุณทายถูกแล้ว");
+        document.getElementById("restart-single-btn").classList.remove("hidden");
+      }
+
+      document.getElementById("guess1").value = "";
+    }
+
+    function checkGuessTwo() {
+      const input = document.getElementById("guess2").value;
+      if (!validateInput(input)) return;
+
+      const guess = input.split('').map(Number);
+      const result = checkAB(guess, playerSecret);
+      addLog("log2", input, result);
+
+      if (result.a === 4) {
+        alert("🎉 เก่งมาก! ทายถูกแล้ว");
+        document.getElementById("restart-two-btn").classList.remove("hidden");
+      }
+
+      document.getElementById("guess2").value = "";
+    }
+
+    function validateInput(input, requiredLength = 4) {
+      if (input.length !== requiredLength || new Set(input).size !== requiredLength || isNaN(input)) {
+        alert(`ต้องใส่เลข ${requiredLength} หลักที่ไม่ซ้ำกัน`);
+        return false;
+      }
+      return true;
+    }
+
+    function checkGuessBP() {
+      const input = document.getElementById("guess-bp").value;
+      if (!validateInput(input, 10)) return;
+
+      const guess = input.split('').map(Number);
+      const result = checkAB(guess, bpAnswer);
+      addLog("log-bp", input, result);
+
+      if (result.a === 10) {
+        alert("🎉 ถูกต้อง 10 ตัวเป๊ะ!");
+        document.getElementById("restart-bp-btn").classList.remove("hidden");
+      }
+
+      document.getElementById("guess-bp").value = "";
+    }
+
+    function checkAB(guess, answer) {
+      let a = 0, b = 0;
+      for (let i = 0; i < guess.length; i++) {
+        if (guess[i] === answer[i]) {
+          a++;
+        } else if (answer.includes(guess[i])) {
+          b++;
+        }
+      }
+      return { a, b };
+    }
+
+    function showComment() {
+        let newComment;
+        do {
+            newComment = comments[Math.floor(Math.random() * comments.length)];
+        } while (newComment === lastComment && comments.length > 1);
+        lastComment = newComment;
+
+        // ✅ แสดงกล่องคำพูด
+        const commentBox = document.getElementById("comment-box");
+        commentBox.innerText = newComment;
+        commentBox.classList.remove("hidden");
+
+        // ✅ แสดงรูปตลกคู่กัน
+        const img = document.getElementById("funny-image");
+        img.src = getRandomFunnyImage();
+        img.classList.remove("hidden");
+    }
+
+    function addLog(id, input, result) {
+      const log = document.getElementById(id);
+      if (result.a === 4) {
+        log.innerHTML += `<div>🎉 ${input} → ถูกต้องทั้งหมด!</div>`;
+      } else {
+        log.innerHTML += `<div>${input} → ${result.a + result.b} : ${result.a}</div>`;
+        showComment();
+      }
+    }
+
+    const comments = [
+        "เอ๊ะ! ใกล้แล้วมั้งเนี่ย?",
+        "ทายแบบนี้ แมวน้ำยังเดาเก่งกว่า!",
+        "จะหลุดมั้ยเนี่ย…",
+        "พลาดนิดเดียวเอง (นิดเดียวสิบรอบแล้วนะ)",
+        "แน่ใจนะว่าใช้สมอง?",
+        "ระบบประมวลผล: คำตอบคุณคือ… ผิดจ้า!",
+        "อื้มม… เกือบไม่ใกล้",
+        "ยังอีก! 😏",
+        "เลขมันหนีเธอไปเองรึเปล่า?",
+        "ลองหลับตาทายดู เผื่อแม่นขึ้น 😌",
+        "ถ้าทายผิดอีก!",
+        "ใกล้เท่าไหร่ก็ยังไม่ใช่!",
+        "สมองซีกไหนคิดคำตอบนี้อะ 🤯",
+        "คอมยังงงว่าเดาแบบนี้มาได้ไง",
+        "เดาได้แย่กว่านกแก้วอีกนะ",
+        "เลขร้องขอชีวิตแล้ว 😭",
+        "ปิดเกมเถอะ",
+        "พยายามอีกนิดๆๆๆๆๆๆๆๆๆ"
+    ];
+
+    function getRandomFunnyImage() {
+        const images = [
+            "3c51fb0232647b4e6ec5ebd243a8cafc.jpg",
+            "1436028411-headline-o.jpg",
+            "https://i.pinimg.com/1200x/c1/3a/21/c13a21e9e8dd9268b84f1416f6970661.jpg",
+            "https://i.pinimg.com/736x/77/ba/19/77ba19fe793d5ee3ccc07e8558d22970.jpg",
+            "https://i.pinimg.com/736x/a2/40/68/a24068726997375f5217ae960fef0ff0.jpg",
+            "https://i.pinimg.com/1200x/04/3a/17/043a17881c353b7ddd0e2af87c5e0828.jpg",
+            "https://i.pinimg.com/1200x/1b/00/d5/1b00d534b909ab05e3d3c981b1f50018.jpg",
+            "https://i.pinimg.com/736x/08/c3/b2/08c3b213e917ab9f45544f8ba7b15be0.jpg",
+            "https://i.pinimg.com/736x/4b/ce/e7/4bcee7dbf90c43587b59b2dbd7330a13.jpg",
+            "https://i.pinimg.com/736x/2e/80/10/2e801019c3a5277c43133180be593370.jpg",
+            "https://i.pinimg.com/736x/dd/d5/ca/ddd5ca87ba95cd8590327f74ca56d4ae.jpg",
+            "https://i.pinimg.com/736x/48/fa/0b/48fa0b02ec4f15e063bf0153feda3cc9.jpg",
+            "https://i.pinimg.com/736x/3d/fa/fd/3dfafd7b672a43df07c5ec28e2c9a853.jpg",
+            "https://i.pinimg.com/736x/23/89/d1/2389d12e047f2fa2f67aea021229afc2.jpg",
+            "https://i.pinimg.com/736x/98/45/12/9845123f769d46fc6432941612e72157.jpg",
+            "",
+        ];
+        return images[Math.floor(Math.random() * images.length)];
+    }
+
+    let lastComment = "";
+
+    function toggleTheme() {
+        const body = document.body;
+        const toggleBtn = document.getElementById("theme-toggle");
+
+        const isDark = body.classList.toggle("dark-mode");
+        toggleBtn.textContent = isDark ? "🌚" : "🌞";
+    }
+
+    // รองรับกด Enter
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        if (!document.getElementById("single-player").classList.contains("hidden")) {
+          checkGuessSingle();
+        } else if (!document.getElementById("two-player").classList.contains("hidden")) {
+          checkGuessTwo();
+        } else if (!document.getElementById("two-player-setup").classList.contains("hidden")) {
+          startTwoPlayer();
+        } else if (!document.getElementById("bp-mode").classList.contains("hidden")) {
+          checkGuessBP();
+        }
+      }
+    });
+
+  </script>
+
+</body>
+</html>

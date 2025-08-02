@@ -12,7 +12,7 @@
     body {
     display: flex;
     flex-direction: column;
-    justify-content: center;   /* จัดกลางแนวตั้ง */
+    /* justify-content: center;   จัดกลางแนวตั้ง */
     align-items: center;       /* จัดกลางแนวนอน */
     min-height: 100vh;         /* ให้สูงเท่าหน้าจอ */
     margin: 0;
@@ -50,7 +50,7 @@
 
     .floating-image1 {
         position: fixed;
-        top: 90px;
+        bottom: 190px;
         left: 50%;
         transform: translateX(-50%);
         width: 230px;
@@ -61,6 +61,7 @@
     }
 
     input[type="text"], input[type="password"], button {
+      text-align: center;
       font-size: 1.2em;
       padding: 10px;
       margin: 10px 5px;
@@ -144,49 +145,48 @@
   <!-- หน้าหลัก -->
   <div id="start-screen">
     <img src="1436028411-headline-o.jpg" alt="" class="floating-image1">
-    <h1>เกมสุมเลข 4 ตัว</h1>
-    <button onclick="showModeScreen()">เริ่มเกม</button>
-    <img src="3c51fb0232647b4e6ec5ebd243a8cafc.jpg" alt="" class="floating-image">
+    <h1>Four Numbers</h1>
+    <button onclick="showModeScreen()">Start</button>
+    <!-- <img src="3c51fb0232647b4e6ec5ebd243a8cafc.jpg" alt="" class="floating-image"> -->
   </div>
 
   <!-- เลือกโหมด -->
   <div id="mode-screen" class="hidden">
-    <h2>เลือกโหมด</h2>
-    <button onclick="startSinglePlayer()">เล่นคนเดียว</button>
-    <button onclick="showTwoPlayerSetup()">เล่น 2 คน</button><br>
-    <button class="back-button" onclick="goBackToStart()">ย้อนกลับ</button>
+    <h2>Select mode</h2>
+    <button onclick="startSinglePlayer()">Solo</button>
+    <button onclick="showTwoPlayerSetup()">Solox2</button><br>
+    <button class="back-button" onclick="goBackToStart()">Back</button>
   </div>
 
   <!-- โหมดคนเดียว -->
   <div id="single-player" class="hidden">
-    <h2>โหมดเล่นคนเดียว</h2>
+    <h2>Single Mode</h2>
     <input type="text" id="guess1" maxlength="4" placeholder="1234">
-    <button onclick="checkGuessSingle()">ทาย</button>
     <div id="log1"></div>
-    <button id="restart-single-btn" class="hidden" onclick="startSinglePlayer()">เล่นอีกครั้ง</button><br>
-    <button class="back-button" onclick="goBackToMode()">ย้อนกลับ</button>
+    <button id="restart-single-btn" class="hidden" onclick="startSinglePlayer()">Play Again</button><br>
+    <button class="back-button" onclick="goBackToMode()">Back</button>
   </div>
 
   <!-- โหมดสองคน - ใส่รหัส -->
   <div id="two-player-setup" class="hidden">
-    <h2>โหมด 2 คน: ผู้เล่น 1 ใส่รหัส</h2>
+    <h2>Create Code</h2>
     <input type="password" id="secret-number" maxlength="4" placeholder="ใส่เลข 4 หลัก">
-    <button onclick="startTwoPlayer()">เริ่มให้เพื่อนเล่น</button><br>
-    <button class="back-button" onclick="goBackToMode()">ย้อนกลับ</button>
+    <!-- <button onclick="startTwoPlayer()">เริ่มให้เพื่อนเล่น</button><br> -->
+    <button class="back-button" onclick="goBackToMode()">Back</button>
   </div>
 
   <!-- โหมดสองคน - ทาย -->
   <div id="two-player" class="hidden">
-    <h2>ผู้เล่น 2: ทายรหัส</h2>
+    <h2>Couple Mode</h2>
     <input type="text" id="guess2" maxlength="4" placeholder="1234">
-    <button onclick="checkGuessTwo()">ทาย</button>
     <div id="log2"></div>
-    <button id="restart-two-btn" class="hidden" onclick="restartTwoPlayer()">เล่นอีกครั้ง</button><br>
-    <button class="back-button" onclick="goBackToMode()">ย้อนกลับ</button>
+    <button id="restart-two-btn" class="hidden" onclick="restartTwoPlayer()">Play Again</button><br>
+    <button class="back-button" onclick="goBackToMode()">Back</button>
   </div>
 
   <!-- กล่องคำพูดสุ่ม -->
   <div id="comment-box" class="log-box hidden"></div>
+  <img id="funny-image" class="hidden" src="seal.png" alt="รูปตลกตอนเดาผิด" style="width: 200px; margin-top: 10px;" />
 
   <script>
     let answer = [];
@@ -301,6 +301,22 @@
       return { a, b };
     }
 
+    function showComment() {
+        let newComment;
+        do {
+            newComment = comments[Math.floor(Math.random() * comments.length)];
+        } while (newComment === lastComment && comments.length > 1);
+        lastComment = newComment;
+
+        document.getElementById("comment-box").innerText = newComment;
+
+        // แสดงรูปประกอบ
+        const img = document.getElementById("funny-image");
+        img.src = getRandomFunnyImage(); // เปลี่ยนภาพให้สุ่มด้วย
+        img.classList.remove("hidden");
+    }
+
+
     function addLog(id, input, result) {
       const log = document.getElementById(id);
       if (result.a === 4) {
@@ -322,24 +338,39 @@
         "ยังอีก! 😏",
         "เลขมันหนีเธอไปเองรึเปล่า?",
         "ลองหลับตาทายดู เผื่อแม่นขึ้น 😌",
-        "ถ้าทายผิดอีก เดี๋ยวโทรหาครูแน่!",
+        "ถ้าทายผิดอีก!",
         "ใกล้เท่าไหร่ก็ยังไม่ใช่!",
         "สมองซีกไหนคิดคำตอบนี้อะ 🤯",
         "คอมยังงงว่าเดาแบบนี้มาได้ไง",
         "เดาได้แย่กว่านกแก้วอีกนะ",
-        "เลขร้องขอชีวิตแล้ว 😭"
+        "เลขร้องขอชีวิตแล้ว 😭",
+        "ปิดเกมเถอะ",
+        "พยายามอีกนิดๆๆๆๆๆๆๆๆๆ"
     ];
 
-    let lastComment = "";
-
-    function showComment() {
-        let newComment;
-        do {
-        newComment = comments[Math.floor(Math.random() * comments.length)];
-        } while (newComment === lastComment && comments.length > 1);
-        lastComment = newComment;
-         document.getElementById("comment-box").innerText = newComment;
+    function getRandomFunnyImage() {
+        const images = [
+            "3c51fb0232647b4e6ec5ebd243a8cafc.jpg",
+            "1436028411-headline-o.jpg",
+            "https://i.pinimg.com/1200x/c1/3a/21/c13a21e9e8dd9268b84f1416f6970661.jpg",
+            "https://i.pinimg.com/736x/77/ba/19/77ba19fe793d5ee3ccc07e8558d22970.jpg",
+            "https://i.pinimg.com/736x/a2/40/68/a24068726997375f5217ae960fef0ff0.jpg",
+            "https://i.pinimg.com/1200x/04/3a/17/043a17881c353b7ddd0e2af87c5e0828.jpg",
+            "https://i.pinimg.com/1200x/1b/00/d5/1b00d534b909ab05e3d3c981b1f50018.jpg",
+            "https://i.pinimg.com/736x/08/c3/b2/08c3b213e917ab9f45544f8ba7b15be0.jpg",
+            "https://i.pinimg.com/736x/4b/ce/e7/4bcee7dbf90c43587b59b2dbd7330a13.jpg",
+            "https://i.pinimg.com/736x/2e/80/10/2e801019c3a5277c43133180be593370.jpg",
+            "https://i.pinimg.com/736x/dd/d5/ca/ddd5ca87ba95cd8590327f74ca56d4ae.jpg",
+            "https://i.pinimg.com/736x/48/fa/0b/48fa0b02ec4f15e063bf0153feda3cc9.jpg",
+            "https://i.pinimg.com/736x/3d/fa/fd/3dfafd7b672a43df07c5ec28e2c9a853.jpg",
+            "https://i.pinimg.com/736x/23/89/d1/2389d12e047f2fa2f67aea021229afc2.jpg",
+            "https://i.pinimg.com/736x/98/45/12/9845123f769d46fc6432941612e72157.jpg",
+            "",
+        ];
+        return images[Math.floor(Math.random() * images.length)];
     }
+
+    let lastComment = "";
 
     function toggleTheme() {
         const body = document.body;
@@ -348,7 +379,6 @@
         const isDark = body.classList.toggle("dark-mode");
         toggleBtn.textContent = isDark ? "🌚" : "🌞";
     }
-
 
     // รองรับกด Enter
     document.addEventListener("keydown", function(e) {
